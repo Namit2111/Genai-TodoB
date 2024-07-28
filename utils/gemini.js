@@ -3,7 +3,7 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 async function generateStructuredNotes( userPrompt ) {
     // Access your API key as an environment variable (see "Set up your API key" above)
-const genAI = new GoogleGenerativeAI(process.env.api);
+const genAI = new GoogleGenerativeAI("AIzaSyCazJEmpYATyI34DZUKsHfwIoFq94yGALI");
 
 // Using `responseMimeType` requires one of the Gemini 1.5 Pro or 1.5 Flash models
 const model = genAI.getGenerativeModel({
