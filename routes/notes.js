@@ -5,7 +5,7 @@ const User = require('../models/User');
 const router = express.Router();
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const JWT_SECRET = 'your_jwt_secret';
-
+var nodemailer = require('nodemailer');
 // ---------------------------------------------------------------------------------------------------------------------------------------
 async function generateStructuredNotes(userPrompt) {
   const genAI = new GoogleGenerativeAI("AIzaSyCazJEmpYATyI34DZUKsHfwIoFq94yGALI");
@@ -70,13 +70,27 @@ async function generateStructuredNotes(userPrompt) {
   }
 }
 
+// ------------------------------------------------------------------------------------------------------------
 
 
 
 
 
 
+// var mailOptions = {
+//   from: 'namitjainjob2111@gmail.com',
+//   to: 'namitjain2111@gmail.com',
+//   subject: 'Sending Email using Node.js',
+//   text: 'That was easy!'
+// };
 
+// transporter.sendMail(mailOptions, function(error, info){
+//   if (error) {
+//     console.log(error);
+//   } else {
+//     console.log('Email sent: ' + info.response);
+//   }
+// });
 
 
 
@@ -114,9 +128,51 @@ router.post('/', auth, async (req, res) => {
   try {
     const { content } = req.body;
 
-    // Generate structured notes
+    // Check for email addresses in the content
+    const emailRegex = /([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/g;
+    const emailMatches = content.match(emailRegex);
+    
+    if (emailMatches) {
+      const email = emailMatches[0];
+
+      // Send email
+      const mailOptions = {
+        from: 'namitjainjob2111@gmail.com',
+        to: email,
+        subject: 'Meeting Request',
+        text: 'You have a new meeting request!'
+      };
+      
+      var transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: 'namitjainjob2111@gmail.com',
+          pass: 'tzethlzweqpxhokr'
+        }
+      });
+      transporter.sendMail(mailOptions, function(error, info) {
+        if (error) {
+          console.log(error);
+        } else {
+          console.log('Email sent: ' + info.response);
+        }
+      });
+
+      // Add a new note for the meeting
+      const meetingNote = new Note({
+        content: `Meet with ${email}`,
+        tags: ['meet', 'email'],
+        priority: 'High',
+        user: req.user,
+      });
+      const savedNote = await meetingNote.save();
+      
+      return res.json([savedNote]);
+    }
+
+    // Generate structured notes if no email is found
     const generatedNotes = await generateStructuredNotes(content);
-    // console.log(generatedNotes);
+
     // Save each generated note to the database
     const savedNotes = await Promise.all(generatedNotes.map(async (noteData) => {
       const newNote = new Note({
