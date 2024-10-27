@@ -33,8 +33,8 @@ This project is a RESTful API for managing user notes. It allows users to regist
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/yourusername/notes-api.git
-   cd notes-api
+   git clone [https://github.com/yourusername/notes-api.git](https://github.com/Namit2111/Genai-TodoB)
+   cd Genai-TodoB
    ```
 
 2. **Install dependencies**:
